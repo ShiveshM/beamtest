@@ -122,6 +122,7 @@ def run(settings, ddc_dfile, time_lim, outdir, chunk, verbose):
             time = timer()
             if verbose:
                 print line,
+            print '\t{0:.2f} s / {1:.2f} s\r'.format(time - start_t, time_lim),
             if time - start_t > time_lim:
                 break
 
@@ -158,9 +159,9 @@ def run(settings, ddc_dfile, time_lim, outdir, chunk, verbose):
         os.makedirs(outdir, mode=0755)
     except OSError as err:
         pass
-    outfile = outdir+'/level0_{0:06d}.txt.gz'.format(int(idx/chunk))
+    of = outdir+'/level0_{0:06d}.txt.gz'.format(int(idx/chunk))
 
-    with gzip.GzipFile(outfile, 'wb') as outfile:
+    with gzip.GzipFile(of, 'wb') as outfile:
         outfile.write(stream)
     stream = ''
 

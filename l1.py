@@ -157,7 +157,7 @@ def main():
     run(
         input_folder = args.input_folder,
         outfile = args.outfile,
-        invert = args.invert,
+        no_invert = args.no_invert,
         verbose = args.verbose
     )
 
