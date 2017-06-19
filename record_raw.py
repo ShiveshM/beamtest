@@ -146,7 +146,7 @@ def run(settings, ddc_dfile, time_lim, outdir, chunk, verbose):
                 stream = ''
             idx += 1
     except:
-        print 'Error, cleaning up\n'
+        print '\nError, cleaning up\n'
         os.killpg(os.getpgid(process.pid), signal.SIGTERM)
         print 'Dumping data to dump_{0:06d}.txt'.format(int(idx/chunk))
         of = './dump_{0:06d}.txt'.format(int(idx/chunk))
@@ -155,15 +155,18 @@ def run(settings, ddc_dfile, time_lim, outdir, chunk, verbose):
         raise
     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
 
-    try:
-        os.makedirs(outdir, mode=0755)
-    except OSError as err:
-        pass
-    of = outdir+'/level0_{0:06d}.txt.gz'.format(int(idx/chunk))
-
-    with gzip.GzipFile(of, 'wb') as outfile:
-        outfile.write(stream)
-    stream = ''
+    s_copy = deepcopy(stream)
+    def save_to_disk():
+        try:
+            os.makedirs(outdir, mode=0755)
+        except OSError as err:
+            pass
+        of = outdir+'/level0_{0:06d}.txt.gz'.format(int(idx/chunk))
+        with gzip.GzipFile(of, 'wb') as outfile:
+            outfile.write(s_copy)
+    p = Process(target = save_to_disk)
+    p.start()
+    p.join()
 
 
 def main():
@@ -177,6 +180,7 @@ def main():
         verbose = args.verbose
     )
 
+    print '\n'
     print '=========='
     print 'DONE'
     print '=========='
