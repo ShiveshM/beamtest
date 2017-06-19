@@ -51,9 +51,8 @@ echo "AF_SET_PRE_CONFIG 4"
 # 0: Collect 256 samples 
 # >0: collect pretrigger length + 4x data argument, up to 8000 samples total
 # echo "AF_SET_CNST_CONFIG 0"
-# echo "AF_SET_CNST_CONFIG 4"
-echo "AF_SET_CNST_CONFIG 40"
-# echo "AF_SET_CNST_CONFIG 100"
+# echo "AF_SET_CNST_CONFIG 40"
+echo "AF_SET_CNST_CONFIG 65"
 
 ############### Trigger and Pipeline (TAP) Commands #######################
 
@@ -83,7 +82,8 @@ echo "TAP_GET_BASELINE"
 # echo "TAP_SET_TRIG_EN 1"
 
 # Length of Test run
-echo "AF_SET_TEST_CONFIG 40"
+# echo "AF_SET_TEST_CONFIG 40"
+echo "AF_SET_TEST_CONFIG 65"
 
 ############### HVS Commands #######################
 
