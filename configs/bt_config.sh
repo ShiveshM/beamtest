@@ -45,14 +45,15 @@ echo "ADC_HI_PERF_MODE 3"
 # 2:  32 samples of pre-trigger data
 # 3:  64 samples of pre-trigger data
 # 4: 128 samples of pre-trigger data
-echo "AF_SET_PRE_CONFIG 4"
+echo "AF_SET_PRE_CONFIG 2"
 
 # Set the length of fixed length records (requires AF_SET_CNST_RUN=1)
 # 0: Collect 256 samples 
 # >0: collect pretrigger length + 4x data argument, up to 8000 samples total
 # echo "AF_SET_CNST_CONFIG 0"
-# echo "AF_SET_CNST_CONFIG 40"
-echo "AF_SET_CNST_CONFIG 65"
+echo "AF_SET_CNST_CONFIG 20"
+# For LED run
+# echo "AF_SET_CNST_CONFIG 50"
 
 ############### Trigger and Pipeline (TAP) Commands #######################
 
@@ -82,8 +83,9 @@ echo "TAP_GET_BASELINE"
 # echo "TAP_SET_TRIG_EN 1"
 
 # Length of Test run
-# echo "AF_SET_TEST_CONFIG 40"
-echo "AF_SET_TEST_CONFIG 65"
+echo "AF_SET_TEST_CONFIG 20"
+# For LED run
+# echo "AF_SET_TEST_CONFIG 50"
 
 ############### HVS Commands #######################
 

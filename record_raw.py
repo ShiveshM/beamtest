@@ -41,7 +41,7 @@ def parse_args():
         help='''Output location of folder to contain data'''
     )
     parser.add_argument(
-        '--chunk', type=int, default=1e5, metavar='INT', required=False,
+        '--chunk', type=int, default=1e4, metavar='INT', required=False,
         help='''Number of lines to save before splitting into a new file'''
     )
     parser.add_argument(
@@ -82,9 +82,9 @@ def run(settings, ddc_dfile, time_lim, outdir, chunk, verbose):
     signal.signal(signal.SIGINT, signal_handler)
 
     stream = ''
-    baseline = 0
     skip_intro = True
     skip_initial_wv = True
+    header = True
     idx = 0
     try:
         for line in iter(process.stdout.readline, b''):
@@ -96,8 +96,7 @@ def run(settings, ddc_dfile, time_lim, outdir, chunk, verbose):
                     if 'INVALID' in line:
                         raise AssertionError('Reset the DDC2 and run again')
                     if 'TAP_GET_BASELINE' in line:
-                        stream += 'BASELINE = ' + line.split(' ')[-1][1:-2]
-                        stream += '\n'
+                        baseline = line.split(' ')[-1][1:-2]
                     idx += 1
                     continue
                 else:
@@ -114,10 +113,26 @@ def run(settings, ddc_dfile, time_lim, outdir, chunk, verbose):
                     continue
                 else:
                     initial_timestamp = datetime.now()
-                    stream += 'INITIAL TIMESTAMP = {0}'.format(datetime.now())
-                    stream += '\n\n'
                     start_t = timer()
                     skip_initial_wv = False
+
+            if header:
+                stream += 'BASELINE = ' + baseline + '\n'
+                stream += 'INITIAL TIMESTAMP = {0}'.format(initial_timestamp)
+                stream += '\n\n'
+                s_copy = deepcopy(stream)
+                def save_to_disk():
+                    try:
+                        os.makedirs(outdir, mode=0755)
+                    except OSError as err:
+                        pass
+                    of = outdir+'/level0_{0:06d}.txt.gz'.format(0)
+                    with gzip.GzipFile(of, 'wb') as outfile:
+                        outfile.write(s_copy)
+                p = Process(target = save_to_disk)
+                p.start()
+                stream = ''
+                header = False
 
             time = timer()
             if verbose:
@@ -161,7 +176,11 @@ def run(settings, ddc_dfile, time_lim, outdir, chunk, verbose):
             os.makedirs(outdir, mode=0755)
         except OSError as err:
             pass
-        of = outdir+'/level0_{0:06d}.txt.gz'.format(int(idx/chunk))
+        if int(idx/chunk) == 0:
+            runs = 1
+        else:
+            runs = int(idx/chunk)
+        of = outdir+'/level0_{0:06d}.txt.gz'.format(runs)
         with gzip.GzipFile(of, 'wb') as outfile:
             outfile.write(s_copy)
     p = Process(target = save_to_disk)

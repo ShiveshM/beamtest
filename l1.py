@@ -22,7 +22,7 @@ def parse_args():
         help='''Path to folder containing level0 data'''
     )
     parser.add_argument(
-        '-o', '--outfile', type=str, default='./data/test/l1.npy',
+        '-o', '--outfile', type=str, default='./data/test/l1.hd5',
         metavar='FILE', required=False,
         help='''Output location of level1 data'''
     )
