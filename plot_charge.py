@@ -49,8 +49,6 @@ def run(infile, outfile, bins):
 
     print 'plotting...'
     charges = df['charge'].unique()
-    print charges
-    assert 0
     binning = np.linspace(np.min(charges), np.max(charges), bins+1)
 
     ax.set_xlim(np.min(charges), np.max(charges))
