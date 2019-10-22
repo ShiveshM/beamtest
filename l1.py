@@ -31,6 +31,10 @@ def parse_args():
         required=False, help='''Don't invert the waveform'''
     )
     parser.add_argument(
+        '--cut', type=int, default=0, required=False,
+        help='''Make a cut in ns before calculating charge'''
+    )
+    parser.add_argument(
         '-v', '--verbose', action='store_true', default=False,
         help='''Verbose'''
     )
@@ -52,7 +56,7 @@ def mk_time(timestamp_list):
     return time.mktime((year, month, day, hour, mins, sec, 0, 0, 0)) + decimal
 
 
-def run(input_folder, outfile, no_invert, verbose):
+def run(input_folder, outfile, no_invert, cut, verbose):
     """Main function to perform level1 processing"""
 
     l0_data = ''
@@ -135,8 +139,12 @@ def run(input_folder, outfile, no_invert, verbose):
                                          df['timestamp'] - local_time)
         df['timestamp'] = timestamp
 
-        wv_spline = interpolate.splrep(df['isamp'], df['voltage'], s=0)
-        wv_area = interpolate.splint(0, np.max(df['isamp']), wv_spline)
+        if cut == 0:
+            wv_spline = interpolate.splrep(df['isamp'], df['voltage'], s=0)
+            wv_area = interpolate.splint(0, np.max(df['isamp']), wv_spline)
+        else:
+            wv_spline = interpolate.splrep(df['isamp'][:cut/4], df['voltage'][:cut/4], s=0)
+            wv_area = interpolate.splint(0, np.max(df['isamp'][:cut/4]), wv_spline)
         # convert to nVs
         charge = wv_area / 1e3
         df = df.assign(charge = charge)
@@ -156,9 +164,10 @@ def main():
     args = parse_args()
     run(
         input_folder = args.input_folder,
-        outfile = args.outfile,
-        no_invert = args.no_invert,
-        verbose = args.verbose
+        outfile      = args.outfile,
+        no_invert    = args.no_invert,
+        cut          = args.cut,
+        verbose      = args.verbose
     )
 
     print '=========='

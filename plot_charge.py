@@ -81,7 +81,7 @@ def run(infile, outfile, bins):
         binning, hist_0, alpha=1, drawstyle='steps-pre', linewidth=1,
         linestyle='-', color='r'
     )
-    ax.plot(bin_centres, hist_fit, label='Fitted with gaussian')
+    ax.plot(bin_centres, hist_fit)
 
     ax.set_xlabel('Charge (nVs)')
     ax.set_ylabel('N')

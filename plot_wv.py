@@ -29,7 +29,7 @@ def parse_args():
         help='''Output path of figure'''
     )
     parser.add_argument(
-        '-n', '--nplot', type=int, required=False, default=None,
+        '-n', '--nplot', type=int, required=False, default=1E9,
         metavar='INT', help='''Specify number of waveforms to plot'''
     )
     parser.add_argument(
@@ -38,7 +38,7 @@ def parse_args():
     )
     parser.add_argument(
         '--interpolate', action='store_true', default=False,
-        help='''Plot the interpolated waveforms'''
+        help='''Overlay the interpolated waveforms'''
     )
     args = parser.parse_args()
     return args
@@ -51,35 +51,24 @@ def run(infile, outfile, interp, nplot, ymax):
     df = store['df']
     store.close()
 
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(6, 4))
     ax = fig.add_subplot(111)
 
     ax.set_xlim(0, np.max(df['isamp']))
     ax.set_ylim(-ymax/10, ymax)
 
     print 'plotting...'
-    if not interp:
-        if nplot is None:
-            df.plot(x='isamp', y='voltage', ax=ax)
-        else:
-            wv_idx = df['index'].unique()
-            for i, idx in enumerate(wv_idx):
-                if i == nplot:
-                    break
-                wv_df = df[df['index'] == idx]
-                wv_df.plot(x='isamp', y='voltage', ax=ax)
-    else:
-        wv_idx = df['index'].unique()
-        for i, idx in enumerate(wv_idx):
-            if nplot is not None:
-                if i == nplot:
-                    break
-            wv_df = df[df['index'] == idx]
+    wv_idx = df['index'].unique()
+    for i, idx in enumerate(wv_idx):
+        if i == nplot:
+            break
+        wv_df = df[df['index'] == idx]
+        if interp:
             spl = interpolate.splrep(wv_df['isamp'], wv_df['voltage'], s=0)
             x = np.linspace(0, np.max(wv_df['isamp']), 200)
             y = interpolate.splev(x, spl)
-            ax.scatter(x, y, marker='o', c='blue')
-            ax.plot(x, y, linestyle='-', linewidth=1, c='blue')
+            ax.scatter(x, y, marker='.', c='blue', s=1.0)
+            ax.plot(x, y, linestyle='--', linewidth=0.5, alpha=0.8, c='green')
 
     ax.set_xlabel('Time (ns)')
     ax.set_ylabel('Voltage (mV)')
@@ -89,9 +78,9 @@ def run(infile, outfile, interp, nplot, ymax):
         legend.remove()
 
     for ymaj in ax.yaxis.get_majorticklocs():
-        ax.axhline(y=ymaj, ls=':', color='gray', alpha=0.7, linewidth=1)
+        ax.axhline(y=ymaj, ls='--', color='gray', alpha=0.2, linewidth=0.5)
     for xmaj in ax.xaxis.get_majorticklocs():
-        ax.axvline(x=xmaj, ls=':', color='gray', alpha=0.7, linewidth=1)
+        ax.axvline(x=xmaj, ls='--', color='gray', alpha=0.2, linewidth=0.5)
 
     fig.savefig(outfile, bbox_inches='tight', dpi=150)
 
